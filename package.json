@@ -1,0 +1,21 @@
+{
+  "name": "glance",
+  "version": "0.1.0",
+  "description": "Glance — a screen-aware voice assistant that teaches you to use software. It points, you act.",
+  "main": "src/main/main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "start:mock": "cross-env GLANCE_MOCK=1 electron .",
+    "point-test": "node scripts/point-test.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "@google/generative-ai": "0.24.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^31.0.0"
+  }
+}

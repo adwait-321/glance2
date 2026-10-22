@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const { Vision } = require('../src/main/vision');
+const { parseKeys } = require('../src/main/keypool');
 const { mapModelPoint } = require('../src/main/coords');
 
 function imageSize(buf) {
@@ -32,9 +33,9 @@ function imageSize(buf) {
   const mime = buf.readUInt32BE(0) === 0x89504e47 ? 'image/png' : 'image/jpeg';
 
   const v = new Vision({
-    apiKey: process.env.GEMINI_API_KEY,
+    apiKeys: parseKeys(process.env),
     primaryModel: process.env.GLANCE_PRIMARY_MODEL || 'gemini-3-flash-preview',
-    fallbackModel: process.env.GLANCE_FALLBACK_MODEL || 'gemini-2.5-flash',
+    fallbackModel: process.env.GLANCE_FALLBACK_MODEL || 'gemini-3.8-flash',
   });
   const res = await v.nextStep({ goal, history: [], imageB64: buf.toString('base64'), imageMime: mime });
   const pointer = mapModelPoint(res.point, imagePx, bounds);

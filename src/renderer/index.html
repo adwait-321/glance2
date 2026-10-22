@@ -8,48 +8,44 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Pointer reticle -->
+  <!-- Drag guide: dashed path from press point to release point + moving ghost cursor -->
+  <div id="drag-layer" hidden><svg id="drag-svg">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" class="arrow-head" />
+      </marker>
+    </defs>
+    <line id="drag-line" marker-end="url(#arrow)" />
+    <rect id="drag-box" />
+  </svg></div>
+  <div id="drag-end" hidden><div class="ring"></div><span>release</span></div>
+  <div id="drag-ghost" hidden></div>
+
+  <!-- Pointer reticle (press / click point) -->
   <div id="reticle" hidden>
     <div class="ring r1"></div>
     <div class="ring r2"></div>
     <div class="dot"></div>
-    <div id="reticle-label" hidden></div>
+    <div id="scroll-arrows" hidden><i>▼</i><i>▼</i></div>
+    <div id="reticle-label" hidden>
+      <span id="label-action"></span>
+      <span id="label-hint"></span>
+      <code id="label-text" hidden></code>
+    </div>
   </div>
 
-  <!-- Collapsed pill -->
-  <button id="pill" class="interactive" title="Open Glance">
-    <span class="logo">◉</span> Glance <kbd id="hotkey"></kbd>
-  </button>
+  <!-- Calibration markers (type "calibrate" in the bar) -->
+  <div id="calib" hidden></div>
 
-  <!-- Guidance panel -->
-  <section id="panel" class="interactive" hidden>
-    <header>
-      <span class="logo">◉</span>
-      <strong>Glance</strong>
-      <span id="model" class="badge"></span>
-      <button id="btn-close" class="icon" title="Close (Esc)">✕</button>
-    </header>
-
-    <form id="goal-form" autocomplete="off">
-      <input id="goal-input" type="text" placeholder="What do you want to do?" />
-      <button type="button" id="mic" class="icon" title="Speak your goal">🎤</button>
-    </form>
-
-    <div class="goal-row"><span class="label">Goal</span><span id="goal">—</span></div>
-    <div class="step-box">
-      <span id="counter" class="label"></span>
-      <p id="step">Press the hotkey, then type or speak what you want to do. I'll point — you click.</p>
-    </div>
-
-    <div class="controls">
-      <button id="btn-repeat" disabled>Repeat</button>
-      <button id="btn-next" disabled>Next step</button>
-      <button id="btn-stop">Stop</button>
-    </div>
-    <div id="status"></div>
-  </section>
+  <!-- The only UI: a thin type bar -->
+  <form id="bar" class="interactive" autocomplete="off">
+    <span id="dot" data-s="idle"></span>
+    <input id="bar-input" type="text" spellcheck="false" />
+    <button type="button" id="mic" title="Speak">🎙</button>
+  </form>
 
   <script src="phash.js"></script>
+  <script src="watcher.js"></script>
   <script src="voice.js"></script>
   <script src="renderer.js"></script>
 </body>

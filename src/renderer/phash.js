@@ -58,7 +58,16 @@
     return { bits, cells, changed: cells >= o.changedCells || bits >= o.changedBits };
   }
 
-  const api = { aHash, hamming, cellDiff, compare, maskFromRects };
+  /** Count pixels that moved more than `threshold` between two same-size fine crops (small, local changes). */
+  function pixelDiff(a, b, threshold) {
+    const t = threshold == null ? 24 : threshold;
+    const n = Math.min(a.length, b.length);
+    let c = 0;
+    for (let i = 0; i < n; i++) if (Math.abs(a[i] - b[i]) > t) c++;
+    return c;
+  }
+
+  const api = { aHash, hamming, cellDiff, compare, maskFromRects, pixelDiff };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PHash = api;
 })(typeof self !== 'undefined' ? self : this);

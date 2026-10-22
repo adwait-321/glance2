@@ -39,20 +39,29 @@ async function captureDisplay(display) {
   };
 }
 
+const { bgraToGray, cropGray } = require('./gray');
+
+const FOCUS_THUMB = { width: 960, height: 540 };   // finer grab, only used while a pointer is on screen
+const CROP = { w: 192, h: 108 };                   // window around the pointer (about 20% of the screen each way)
+
 /**
- * Tiny 32×18 grayscale sample for the screen-change watcher.
- * Returns a plain array (IPC-friendly) of 576 luminance values 0–255.
+ * 32×18 grayscale sample for the screen-change watcher (576 values, 0–255).
+ * `focus` = [{fx, fy}] fractions of the display (where the pointer is). When given, the same grab also yields a
+ * fine grayscale crop around each point, so small changes there (a toolbar highlight, a few typed letters) are visible.
  */
-async function sampleGray(display) {
-  const src = await findSource(display, { width: HASH_W * 4, height: HASH_H * 4 });
-  const img = src.thumbnail.resize({ width: HASH_W, height: HASH_H, quality: 'good' });
-  const buf = img.toBitmap(); // BGRA
-  const out = new Array(HASH_W * HASH_H);
-  for (let i = 0; i < out.length; i++) {
-    const b = buf[i * 4], g = buf[i * 4 + 1], r = buf[i * 4 + 2];
-    out[i] = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+async function sampleGray(display, focus = []) {
+  const fine = focus.length > 0;
+  const src = await findSource(display, fine ? FOCUS_THUMB : { width: HASH_W * 4, height: HASH_H * 4 });
+  const thumb = src.thumbnail;
+  const small = thumb.resize({ width: HASH_W, height: HASH_H, quality: 'good' });
+  const gray = Array.from(bgraToGray(small.toBitmap(), HASH_W * HASH_H));
+  const crops = [];
+  if (fine) {
+    const { width: tw, height: th } = thumb.getSize();
+    const buf = thumb.toBitmap();
+    for (const f of focus) crops.push(cropGray(buf, tw, th, f.fx, f.fy, CROP.w, CROP.h));
   }
-  return { w: HASH_W, h: HASH_H, gray: out };
+  return { w: HASH_W, h: HASH_H, gray, crops };
 }
 
 module.exports = { captureDisplay, sampleGray, HASH_W, HASH_H };
